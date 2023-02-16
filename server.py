@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from socket import socket
+from socket import socket, gethostbyname
 from socket import AF_INET, SOCK_STREAM
+from typing import List
 
-from config import SERVER_IP, SERVER_PORT, SERVER_ADDRESS, SERVER_START
+from config import SERVER_ADDRESS, SERVER_START
+from config import HOSTNAME, PROTOCOL
+from parser import get_links_html
 
 
-# typing для аннотации типов socket
+# socket (сервер/клиент)
 ServerSocket = socket
 ClientSocket = socket
+# Список полученных данных
+DataList = List[str]
 
 
 def create_server() -> None:
     # Программный интерфейс для обеспечения инфо обмена между процессами
-    server = socket() # socket(AF_INET, SOCK_STREAM)
+    server = socket(AF_INET, SOCK_STREAM)
     # Подключение к веб-серверу через порт
     server.bind(SERVER_ADDRESS)
     # Одновременное прослушивание сервером кол-ва человек
@@ -36,39 +41,78 @@ def _start_server(_server: ServerSocket) -> None:
 
 def _manipulation_data(_client: ClientSocket) -> None:
     # Чтение запрошенных данных
-    _read_data(_client)
+    request = _read_data(_client)
+    # Ответ от сервера
+    response = _response_server(request)
     # Отправка данных клиенту
-    _send_data(_client)
+    _send_data(_client, response)
 
 
-def _read_data(_client: ClientSocket) -> None:
+def _read_data(_client: ClientSocket) -> DataList:
     # Чтение запрошенных данных от клиента
     request = _client.recv(1024).decode().split('\n')
-    # Метод, адрес, протокол, хост
-    method, usl, protocol = request[0].split()
-    host = request[1].split()[1]
-    
-    print('Метод: %s\nАдрес: %s\nПротокол: %s\nХост: %s\n' % (method, usl, protocol, host))
+    print(request, '\n')
+    # Возвращаем результат :param List[str]: список строк
+    return request
 
 
-def _send_data(_client: ClientSocket) -> None:
-    # Ответ от сервера
-    response = _response_server()
-    # Формируем отправку данных клиенту
-    _client.send(response.encode())
-
-
-def _response_server() -> str:
+def _response_server(_request: DataList) -> str:
+    # Список url-адресов
+    urls = get_links_html(PROTOCOL+HOSTNAME)
+    print(urls)
     # Формируем ответ от сервера
-    response = '<h1>TEST DATA</h1>'
+    response = '''
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style type="text/css">
+    body {padding: 10px 50px;}
+    h1 {font-size: 30px; padding: 10px 20px;}
+    h3 {font-size: 20px; font-family: monospace;}
+    i {color: #ff0000;}
+    </style>
+    '''
+    response += '</head>'
+    response += '<body>'
+    response += '<header>'
+    response += '<h1>Тестовое задание: Middle Python Developer в BlackHub Games</h1>'
+    response += '</header>'
+    response += '<main>'
+    if _request != ['']:
+        # Метод, путь, протокол, localhost
+        method, path, protocol = _request[0].split()
+        _, localhost = _request[1].split()
+        # Списко компонентов
+        response += '<h3><i>Protocol:</i> '+protocol+'</h3>'
+        response += '<h3><i>Method:</i> '+method+'</h3>'
+        response += '<h3><i>Localhost:</i> '+localhost+'</h3>'
+        response += '<h3><i>Hostname:</i> '+HOSTNAME+'</h3>'
+        response += '<h3><i>Path:</i> '
+
+        link = PROTOCOL+HOSTNAME+path
+        if link in urls:
+            response += '<a href="'+link+'">'+path+'</a>'
+        else:
+            response += '404 Page Not Found: ' + link
+
+        response += '</h3>'
+        response += '<h3><i>Host:</i> '+gethostbyname(HOSTNAME)+'</h3>'
+    response += '</main>'
+    response += '</body></html>'
     # Возвращаем результат :param str: html
     return response
+
+
+def _send_data(_client: ClientSocket, _response: str) -> None:
+    # Формируем отправку данных клиенту
+    _client.send(_response.encode())
 
 
 def _close_server(_client: ClientSocket) -> None:
     # Формируем закрытие соединения с сервером
     _client.close()
-    print('Подключение завершено.\n')
 
 
 # Основная функция для вызова набора команд
