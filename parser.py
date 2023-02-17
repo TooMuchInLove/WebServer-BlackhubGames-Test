@@ -22,12 +22,16 @@ HTMLString = str
 
 # Считываем удалённый файл html
 def read_html_remote(_url: str) -> HTMLObject:
-    # Прокси
     # proxy = {
     #     'https': 'https://52.183.8.192:3128',
     # }
+    headers = {
+        'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+            'Chrome/108.0.0.0 YaBrowser/23.1.2.987 Yowser/2.5 Safari/537.36'
+    }
     # Чтении удалённой html-страницы
-    response = requests.get(_url) # , proxies=proxy
+    response = requests.get(_url, headers=headers)
     # Добавляем html-страницу
     html = BeautifulSoup(response.text, 'html.parser')
     # Возвращаем результат :param str|object: url|html
