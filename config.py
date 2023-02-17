@@ -15,3 +15,7 @@ SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
 PROTOCOL = 'https://'
 # Хост сайта
 HOSTNAME = 'blackrussia.online'
+
+# Основной файл
+FILE_FORMAT = '.html'
+FILE_NAME = 'BLACK_RUSSIA' + FILE_FORMAT
