@@ -8,9 +8,9 @@ from socket import socket, gethostbyname
 from socket import AF_INET, SOCK_STREAM
 # Конфигурация + локальные модули
 from config import SERVER_ADDRESS, SERVER_START
-from config import HOSTNAME, PROTOCOL
-from parser import read_html_remote, read_html_local, get_links_html
-# html-шаблон
+from config import HOSTNAME, PROTOCOL, FILE_NAME
+from parser import read_html_local, get_links_html
+# Html-шаблон
 from template import HTML
 
 
@@ -62,33 +62,28 @@ def _read_data(_client: CLIENTObject) -> DATAList:
 
 def _response_server(_request: DATAList) -> str:
     # Список url-адресов
-    #urls = get_links_html(PROTOCOL+HOSTNAME)
-    urls = ''
+    html = read_html_local(FILE_NAME)
+    list_urls = get_links_html(PROTOCOL+HOSTNAME, html)
     # Формируем ответ от сервера
     response = ''
     if _request != ['']:
-        # Метод, путь, протокол, localhost
+        # Метод, путь, протокол, localhost, ссылка
         method, path, protocol = _request[0].split()
         _, localhost = _request[1].split()
+        link = PROTOCOL + HOSTNAME + path
         # Списко компонентов
         response += '<h3><i>Protocol:</i> '+protocol+'</h3>'
         response += '<h3><i>Method:</i> '+method+'</h3>'
         response += '<h3><i>Localhost:</i> '+localhost+'</h3>'
         response += '<h3><i>Hostname:</i> '+HOSTNAME+'</h3>'
-        response += '<h3><i>Path:</i> '
-
-        link = PROTOCOL+HOSTNAME+path
-        if link in urls:
-            response += '<a href="'+link+'">'+path+'</a>'
-        else:
-            response += '404 Page Not Found: ' + link
-
-        response += '</h3>'
+        result = '404 Page Not Found'
+        if link in list_urls:
+            result = '<a href="'+link+'">'+path+'</a>'
+        response += '<h3><i>Path:</i> %s</h3>' % (result)
         response += '<h3><i>Host:</i> '+gethostbyname(HOSTNAME)+'</h3>'
-    # ...
-    # index = HTML.find('</main>')
-    # HTML = HTML[:index] + response + HTML[index:]
-    # print(HTML)
+    # html-шаблон (поиск тега и заполнение результатом)
+    index = HTML.find('</main>')
+    response = HTML[:index] + response + HTML[index:]
     # Возвращаем результат :param str: html
     return response
 
