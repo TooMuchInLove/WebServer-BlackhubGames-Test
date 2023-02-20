@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Аннотации типов
@@ -55,7 +54,6 @@ def _manipulation_data(_client: CLIENTObject) -> None:
 def _read_data(_client: CLIENTObject) -> DATAList:
     # Чтение запрошенных данных от клиента
     request = _client.recv(1024).decode().split('\n')
-    print(request, '\n')
     # Возвращаем результат :param List[str]: список строк
     return request
 

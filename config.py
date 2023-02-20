@@ -4,7 +4,7 @@
 # Запуск сервера
 SERVER_START = True
 # IP сервера (localhost)
-SERVER_IP = '127.0.0.1'
+SERVER_IP = 'localhost'
 # Порт сервера (80 - обычный http-порт, 443 - https-порт)
 SERVER_PORT = 80
 # Адрес сервера
