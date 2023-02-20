@@ -9,8 +9,4 @@ https://docs.google.com/document/d/1074lx20YAXAC5yMe8FZzPMdKngWF8oB9NKQM10-Ikgc/
 # Text
 1. Запустить скрипт server.py
 2. Открыть браузер
-3. Перейти на локальный хост: http://127.0.0.1/
-4. Введите путь:
-  http://127.0.0.1/<путь>/, либо http://127.0.0.1/<путь>/<файл>
-
-# Docker
+3. Перейти на локальный хост: http://localhost
